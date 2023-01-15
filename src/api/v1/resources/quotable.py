@@ -91,6 +91,19 @@ def get_random_quote(by: Literal['tags', 'author'], qry_params: List[str], restr
     return get_quote(qry=qry_tags)
 
 
+def get_random_quotes(by: Literal['tags', 'author'], qry_params: List[str], restriction: Literal['all', 'any'] = 'any'):
+
+    if restriction == "all":
+        sep = ','
+    elif restriction == "any":
+        sep = '|'
+    else:
+        return Quote()
+
+    qry_tags = {by: sep.join(qry_params)} if qry_params else None
+    return get_quotes(qry=qry_tags)
+
+
 # if __name__ == '__main__':
 #     print('hello world')
 #     # print(get_quote())

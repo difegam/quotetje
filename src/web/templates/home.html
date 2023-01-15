@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col-md-auto m-4">
+        <a name="" id="" class="btn btn-primary" href="/quote" role="button">Random Quote</a>
+        <a name="" id="" class="btn btn-success" href="/quotes" role="button">Random <b>Quotes</b></a>
+    </div>
+</div>
+{% for quote in quotes %}
+<div class="col-md-auto">
+    <div class="card text-center m-2">
+        <div class="card-body">
+            <h5 class="card-title"><a class="article-title"
+                    href="/authors?author={{ quote.author }}">{{ quote.author }}</a></h5>
+            <p class="card-text">{{ quote.content }}</p>
+            <figcaption class="blockquote-footer mt-1 text-muted"><cite title="Source Title"><a
+                        href="/authors?author={{ quote.author }}">{{ quote.author }}</a></cite>
+                Someone famous
+            </figcaption>
+            <p class="card-text mt-1"><small class="quote-id">Quote ID: {{ quote.id }}</small></p>
+        </div>
+        <hr>
+        <small class="text-muted mb-2 mt-1 "> tags:
+            {% for tag in quote.tags %}
+            <a class="mr-2" href="/tags?tag={{ tag }}">{{ tag }}</a>
+            {% endfor %}
+        </small>
+    </div>
+</div>
+{% endfor %}
+{% endblock content %}

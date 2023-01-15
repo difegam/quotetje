@@ -3,27 +3,6 @@
 version: "3.9"
 
 services:
-  quotes-api:
-    build: ./src
-    restart: on-failure
-    container_name: quotes-api
-    # command: uvicorn api.main:app --host 0.0.0.0 --port 8831 --reload
-    command: |
-          bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8831'
-    ports:
-      - 8831:8831
-    volumes:
-      - ./src/:/usr/src/app/
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - DB_CONNECTION_STRING=${POSTGRES_DB_CONNECTION}
-      - API_VERSION=${API_VERSION}
-      - API_VERSION_NUMBER=${API_VERSION_NUMBER}
-    depends_on:
-      - postgres
-
   postgres:
         image: postgres:15.1-alpine
         restart: unless-stopped
@@ -52,6 +31,36 @@ services:
         volumes:
           - postgres_data:/var/lib/postgresql/data/
           - ./src/api/db/sql/01-init.sh:/docker-entrypoint-initdb.d/01_initdb.sh
+
+  quotes-api:
+    build: ./src
+    restart: unless-stopped
+    container_name: quotes-api
+    # command: uvicorn api.main:app --host 0.0.0.0 --port 8831 --reload
+    command: |
+          bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8831'
+    ports:
+      - 8831:8831
+    volumes:
+      - ./src/:/usr/src/app/
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - DB_CONNECTION_STRING=${POSTGRES_DB_CONNECTION}
+      - API_VERSION=${API_VERSION}
+      - API_VERSION_NUMBER=${API_VERSION_NUMBER}
+    depends_on:
+      - postgres
+
+  web:
+    container_name: web-app
+    restart: unless-stopped
+    build: ./src/web
+    ports:
+      - 1031:1031
+    volumes:
+      - ./src/web/:/usr/src/app/
 
 volumes:
   postgres_data:

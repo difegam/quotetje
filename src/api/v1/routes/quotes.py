@@ -1,4 +1,5 @@
 import pathlib
+import random
 
 from fastapi import APIRouter, HTTPException, Path, Query, status
 
@@ -11,12 +12,12 @@ router = APIRouter(prefix=f"{API_VERSION}/{route}", tags=[str(route)])
 
 @router.get("/author/{author}", status_code=status.HTTP_200_OK)
 async def get_quote_by_author(author: str = Path(min_length=3)):
-    quote = quotable.get_random_quote('author', [author], 'all')
+    quotes = quotable.get_random_quotes('author', [author], 'all')
 
-    if not quote:
+    if not quotes:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
 
-    return quote.to_dict()
+    return quotes
 
 
 @router.get("/random", status_code=status.HTTP_200_OK)
@@ -41,12 +42,12 @@ async def get_quote_by_id(id: str = Path(min_length=3)):
 
 @router.get("/tags/{tags}", status_code=status.HTTP_200_OK)
 async def get_quote_by_tags(tags: str = Path(min_length=3)):
-    quote = quotable.get_random_quote('tags', tags.split(','), 'any')
+    quote = quotable.get_random_quotes('tags', tags.split(','), 'any')
 
     if not quote:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tags not found")
 
-    return quote.to_dict()
+    return quote
 
 
 @router.get("/authors", status_code=status.HTTP_200_OK)
@@ -63,9 +64,10 @@ async def get_quote_authors(limit: int = Query(default=20, gt=0, le=1000)):
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_quote(limit: int = Query(default=20, gt=0, le=150)):
-    quote = quotable.get_quotes(limit=limit)
+    qry = {'page': random.randint(2, 10)}
+    quote = quotable.get_quotes(qry=qry, limit=limit)
 
     if not quote:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
 
     return quote
