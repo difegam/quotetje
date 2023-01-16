@@ -16,7 +16,7 @@ def get_quote(quote_type: str = 'quotes/random', qry: dict | None = None) -> dic
     return rest_conn._get(endpoint=url, params=qry, timeout=6)
 
 
-def get_author_quotes(quote_type: str = 'quotes/author', qry: dict | None = None, sub_url: str = '') -> dict:
+def get_author_quotes(quote_type: str = 'quotes/author', qry: dict | None = None, sub_url: str = '') -> dict | list:
     url = urljoin(base_url, quote_type)
 
     if sub_url:

@@ -61,6 +61,13 @@ services:
       - 1031:1031
     volumes:
       - ./src/web/:/usr/src/app/
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
+      - UNSPLASH_DFT_IMAGE=${UNSPLASH_DFT_IMAGE}
+
 
 volumes:
   postgres_data:

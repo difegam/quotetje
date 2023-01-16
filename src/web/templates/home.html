@@ -10,21 +10,24 @@
 <div class="col-md-auto">
     <div class="card text-center m-2">
         <div class="card-body">
+            {% if quote.image %}
+            <img src="{{ quote.image }}" class="card-img-top rounded img-thumbnail mb-4">
+            {% endif %}
             <h5 class="card-title"><a class="article-title"
                     href="/authors?author={{ quote.author }}">{{ quote.author }}</a></h5>
             <p class="card-text">{{ quote.content }}</p>
             <figcaption class="blockquote-footer mt-1 text-muted"><cite title="Source Title"><a
-                        href="/authors?author={{ quote.author }}">{{ quote.author }}</a></cite>
-                Someone famous
+                        href="/authors?author={{ quote.author }}">{{ quote.author }}</a></cite> someone famous
             </figcaption>
             <p class="card-text mt-1"><small class="quote-id">Quote ID: {{ quote.id }}</small></p>
         </div>
         <hr>
-        <small class="text-muted mb-2 mt-1 "> tags:
+        <small class="text-muted mb-2 mt-1"> tags:
             {% for tag in quote.tags %}
             <a class="mr-2" href="/tags?tag={{ tag }}">{{ tag }}</a>
             {% endfor %}
         </small>
+
     </div>
 </div>
 {% endfor %}
