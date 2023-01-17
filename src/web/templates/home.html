@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row justify-content-md-center align-items-center">
+    <div class="col-md-auto m-4 mt-10">
+        <a name="" id="" class="btn btn-primary justify-content-md-center" href="/quote" role="button"><i
+                class="bi bi-chat-square-quote-fill"></i> | Random Quote</i></a>
+    </div>
+    <div class="col-md-auto m-4">
+        <a name="" id="" class="btn btn-success" href="/quotes" role="button"><i
+                class="bi bi-chat-square-quote-fill"></i> <i class="bi bi-chat-square-quote-fill"></i> | Random
+            <b>Quotes</b></a>
+    </div>
+    <div class="col-md-auto m-4">
+        <button class="btn btn-light text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInfo"
+            aria-expanded="false" aria-controls="collapseInfo">
+            <i class="bi bi-info-circle"></i> | Quote Info
+        </button>
+    </div>
+
+</div>
+
+<div class="row justify-content-md-center align-items-center">
+    <div class="col-md-auto m-4">
+        <div class="collapse text-center m-2" id="collapseInfo">
+            <div class="card card-body">
+                Clicking on the tags and authors will add images to the notes.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-md-center">
+    {% for quote in quotes %}
+    <div class="col-sm-6">
+        <div class="shadow card text-center m-2">
+            <div class="card-body">
+                {% if quote.image %}
+                <img src="{{ quote.image }}" class="card-img-top rounded img-thumbnail mb-4">
+                {% endif %}
+                <h5 class="card-title"><a class="article-title"
+                        href="/authors?author={{ quote.author }}">{{ quote.author }}</a></h5>
+                <p class="card-text">{{ quote.content }}</p>
+                <figcaption class="blockquote-footer mt-1 text-muted"><cite title="Source Title"><a
+                            href="/authors?author={{ quote.author }}">{{ quote.author }}</a></cite> someone famous
+                </figcaption>
+                <p class="card-text mt-1"><small class="quote-id">Quote ID: {{ quote.id }}</small></p>
+            </div>
+
+            <small class="card-footer text-muted"> tags:
+                {% for tag in quote.tags %}
+                <a class="mr-2" href="/tags?tag={{ tag }}">{{ tag }}</a>
+                {% endfor %}
+            </small>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
