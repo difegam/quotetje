@@ -6,7 +6,6 @@ from typing import List, Literal
 
 from data import request_handler as rest
 from dotenv import load_dotenv
-from pyunsplash import PyUnsplash
 
 log = logging.getLogger("quotes")
 

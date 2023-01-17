@@ -1,16 +1,9 @@
-/* body {
-    background: #fafafa;
+body {
+    background: #f1f1f1;
     color: #333333;
     margin-top: 5rem;
-} */
-body {
-    height: 100vh;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
-    background: antiquewhite;
 }
+
 
 .bg-steel {
     background-color: #1e5c88;
