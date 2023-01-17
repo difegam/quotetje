@@ -1,9 +1,10 @@
 import copy
 import logging
 import os
-import time
-from typing import List
+from functools import lru_cache
+from typing import List, Literal
 
+from data import request_handler as rest
 from dotenv import load_dotenv
 from pyunsplash import PyUnsplash
 
@@ -15,53 +16,104 @@ load_dotenv()
 UNSPLASH_ACCESS_KEY = str(os.getenv('UNSPLASH_ACCESS_KEY'))
 UNSPLASH_DFT_IMAGE = str(os.getenv('UNSPLASH_DFT_IMAGE', ''))
 
-pu = PyUnsplash(api_key=UNSPLASH_ACCESS_KEY)
+UNSPLASH_API_ROOT = "https://api.unsplash.com"
+UNSPLASH_HEADERS = {'authorization': f'Client-ID {UNSPLASH_ACCESS_KEY}'}
 
 
-def get_image(search: str, count=2):
+def photos_formatter(photos: List[dict]):
+    """Extract id and url from photos retrieved from unsplash api endpoint."""
+    _photos = tuple()
     try:
-        photos = pu.photos(type_='random', count=1, featured=True, query=str(search))
-
-        if not photos:
-            return 'unknown', UNSPLASH_DFT_IMAGE
-
-        [photo] = photos.entries
-        return photo.id, photo.link_download
-
+        _photos = [(photo.get('id', ''), photo['urls'].get('regular', UNSPLASH_DFT_IMAGE)) for photo in photos]
     except Exception as err:
-        log.warning(f"GET UNSPLASH Image - Error occurred: {type(err).__name__}, Message: {str(err)}")
+        log.warning(f"GET Method - Warning occurred: {type(err).__name__}, Message: {str(err)}")
 
-    return 'unknown', UNSPLASH_DFT_IMAGE
-
-
-def get_images(search: str, count=2):
-    try:
-        photos = pu.photos(type_='random', count=count, featured=True, query=search)
-
-        if not photos:
-            return [('unknown', UNSPLASH_DFT_IMAGE) for _ in range(count)]
-
-        _photos = [(photo.id, photo.link_download) for photo in photos.entries]
-        return _photos
-
-    except Exception as err:
-        log.warning(f"GET UNSPLASH Image - Error occurred: {type(err).__name__}, Message: {str(err)}")
-
-    return [('unknown', UNSPLASH_DFT_IMAGE) for _ in range(count)]
+    return _photos
 
 
-def add_images(*, quotes: List[dict], search: str):
+def search_photos_formatter(photos: dict):
+    """pre format unsplash photos retrieved with search type."""
+    return photos_formatter(photos.get('results', []))
+
+
+def get_photos_formatter(type: Literal['search', 'random']):
+    """returns the unsplash photo formatter"""
+
+    if type == 'search':
+        return search_photos_formatter
+
+    return photos_formatter
+
+
+@lru_cache(maxsize=15)
+def get_unsplash_images(search: str, count=2, _type: Literal['search', 'random'] = 'random'):
+    '''Get a list of images from the unsplash api
+       - Please visit unsplash api doc: https://unsplash.com/documentation#photos
+    '''
+    # url and parameters based on search type
+    type_endpoint = {
+        'random': {
+            'endpoint': UNSPLASH_API_ROOT + '/photos/random',
+            'headers': UNSPLASH_HEADERS,
+            'params': {
+                'query': search.replace('%20', '+'),
+                'count': count,
+                'orientation': 'landscape',
+                'w': 1080
+            }
+        },
+        'search': {
+            'endpoint': UNSPLASH_API_ROOT + '/search/photos',
+            'headers': UNSPLASH_HEADERS,
+            'params': {
+                'query': search.replace('%20', '+'),
+                'per_page': count,
+                'orientation': 'landscape',
+                'w': 1080,
+                'fit': 'max',
+                'dpr': 2
+            }
+        }
+    }
+
+    # Get unsplash Photos
+    photos = rest._get(**type_endpoint.get(_type, {}))
+
+    # Get a formatter for the data retrieved from the unsplash API.
+    photos_formatter = get_photos_formatter(_type)
+
+    return photos_formatter(photos)
+
+
+def add_images(*, quotes: List[dict] | dict, search: str, _type='random'):
+    """
+    add images to a quote
+
+    Args:
+        quotes (List[dict] | dict): quotes
+        search (str): Limit selection to photos matching a search term.
+        _type (str, optional): Select Unsplash endpoint random or photos. Defaults to 'random'.
+            - search -> https://unsplash.com/documentation#photos
+            - search -> https://unsplash.com/documentation#get-a-random-photo
+
+    Returns:
+        quotes_with_images: return quotes with and extra key images that contain images url
+    """
 
     quotes_with_images = copy.deepcopy(quotes)
+    count = len(quotes_with_images)
+    images = get_unsplash_images(search=search, count=count)
 
-    for index, _ in enumerate(quotes):
-        _, im_url = get_image(search=search)
+    if not images:
+        log.warning(f"Error retrieving and adding images")
+        return quotes
+
+    for index, _ in enumerate(images):
+        _, im_url = images[index]
         quotes_with_images[index]['image'] = im_url
-        time.sleep(0.2)
 
     return quotes_with_images
 
 
 if __name__ == '__main__':
-    print(get_images('Michael Jordan'))
-    # print(pu.stats())
+    ...
