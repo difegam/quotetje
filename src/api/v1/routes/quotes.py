@@ -4,6 +4,8 @@ import random
 from fastapi import APIRouter, HTTPException, Path, Query, status
 
 from api.consts import API_VERSION
+from api.schemas import quote as quote_schemas
+from api.v1.crud import crud_quote
 from api.v1.resources import quotable
 
 route = pathlib.Path(__file__).stem
@@ -71,3 +73,10 @@ async def get_quote(limit: int = Query(default=20, gt=0, le=150)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
 
     return quote
+
+
+# @router.post("/create", status_code=status.HTTP_201_CREATED)
+# async def create_quote(new_quote: quote_schemas.QuoteCreate):
+#     result = crud_quote.create_quote(new_quote)
+
+#     return result

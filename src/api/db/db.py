@@ -62,3 +62,6 @@ def create_tables():
 
 # databases query builder
 database = Database(DB_CONNECTION_STRING)
+
+# https://www.encode.io/databases/
+# https://www.encode.io/databases/database_queries/
