@@ -176,7 +176,7 @@ docker scan quotepje-quotes-api
 ## run the tests
 
 ```bash
-docker-compose exec quotes-api pytest .
+docker-compose exec quotes-api pytest . -vv
 ```
 
 ## Quote sources
